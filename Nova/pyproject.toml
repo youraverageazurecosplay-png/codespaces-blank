@@ -4,9 +4,13 @@ version = "0.1.0"
 description = "Local-first coding assistant scaffold."
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = []
 authors = [
   { name = "OpenAI Codex" }
 ]
+
+[project.optional-dependencies]
+web = ["flask>=2.3.0"]
 
 [project.scripts]
 nova = "nova_ai.cli:main"

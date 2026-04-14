@@ -4,6 +4,7 @@ import json
 import subprocess
 import time
 from urllib import error, request
+from http.client import HTTPException
 
 
 class OllamaClient:
@@ -72,6 +73,15 @@ class OllamaClient:
         try:
             with request.urlopen(req, timeout=120) as response:
                 data = json.loads(response.read().decode("utf-8"))
+        except error.HTTPError as exc:
+            if exc.code == 500:
+                raise RuntimeError(
+                    f"Ollama server error (500). The model '{self.model}' may not be installed. "
+                    f"Try: ollama pull {self.model}"
+                ) from exc
+            raise RuntimeError(
+                f"Ollama HTTP error {exc.code}: {exc.reason}"
+            ) from exc
         except error.URLError as exc:
             raise RuntimeError(
                 f"Failed to generate response from Ollama. {exc}"

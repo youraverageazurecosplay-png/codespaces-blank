@@ -5,6 +5,8 @@ Summary: Local-first coding assistant scaffold.
 Author: OpenAI Codex
 Requires-Python: >=3.11
 Description-Content-Type: text/markdown
+Provides-Extra: web
+Requires-Dist: flask>=2.3.0; extra == "web"
 
 # Nova AI
 

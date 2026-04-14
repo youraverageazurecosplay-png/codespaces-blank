@@ -1,9 +1,14 @@
 {
   "name": "nova-side-panel",
-  "displayName": "Nova Side Panel",
-  "description": "Open Nova AI in a VS Code side panel for repository-aware coding assistance.",
-  "version": "0.1.0",
+  "displayName": "Nova AI Chat",
+  "description": "Local-first AI coding assistant in a VS Code side panel. Chat with your codebase, get instant insights. Like GitHub Copilot but runs locally.",
+  "version": "0.2.0",
   "publisher": "nova",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/youraverageazurecosplay-png/codespaces-blank"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -13,7 +18,16 @@
     "commands": [
       {
         "command": "nova.openSidePanel",
-        "title": "Nova: Open Side Panel"
+        "title": "Nova: Open Chat",
+        "category": "Nova"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "nova.openSidePanel",
+        "key": "ctrl+shift+n",
+        "mac": "cmd+shift+n",
+        "when": "workspaceFolderCount > 0"
       }
     ]
   }

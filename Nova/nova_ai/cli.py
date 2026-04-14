@@ -2,16 +2,22 @@ from __future__ import annotations
 
 import argparse
 import getpass
+import sys
 from pathlib import Path
 
+from . import __version__
 from .agent import NovaAgent
 from .config import NovaConfig
 from .profiles import available_profiles, get_system_prompt
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Nova AI local-first coding assistant")
-    parser.add_argument("--repo", default=None, help="Repository path to inspect")
+    parser = argparse.ArgumentParser(
+        description="Nova AI - Local-first coding assistant that runs against your repositories.",
+        epilog="Profiles: general, python, bash, minecraft. Example: nova --profile python ask 'Explain this code'"
+    )
+    parser.add_argument("--version", action="version", version=f"Nova AI {__version__}")
+    parser.add_argument("--repo", default=None, help="Repository path to inspect (default: current directory)")
     parser.add_argument("--model", default=None, help="Ollama model name")
     parser.add_argument("--host", default=None, help="Ollama host, e.g. http://127.0.0.1:11434")
     parser.add_argument("--knowledge-dir", default=None, help="Directory containing Nova knowledge markdown files")
@@ -60,7 +66,31 @@ def build_parser() -> argparse.ArgumentParser:
     credits.add_argument("--prompts", type=int, default=None, help="Grant prompt limit")
     credits.add_argument("--hours", type=int, default=None, help="Grant duration in hours")
     credits.add_argument("--grant-id", default=None, help="Grant id to revoke")
+    
+    info = subparsers.add_parser("info", help="Show Nova configuration and system info")
+    info.add_argument("--verbose", action="store_true", help="Show detailed information")
+    
+    web = subparsers.add_parser("web", help="Open Nova in a web browser GUI")
+    web.add_argument("--port", type=int, default=5000, help="Port to run web server on (default: 5000)")
+    web.add_argument("--debug", action="store_true", help="Run in debug mode")
+    
     return parser
+
+
+def show_info(config: NovaConfig, verbose: bool = False) -> None:
+    """Display Nova configuration and system information."""
+    print(f"\n🚀 Nova AI v{__version__}")
+    print(f"Profile: {config.profile}")
+    print(f"Model: {config.model}")
+    print(f"Ollama Host: {config.ollama_host}")
+    print(f"Repository: {config.repo_root}")
+    print(f"Knowledge Dir: {config.knowledge_dir}")
+    if verbose:
+        print(f"Projects Dir: {config.projects_dir}")
+        print(f"State Dir: {config.state_dir}")
+        print(f"Credits Enabled: {config.credits_enabled}")
+        print(f"Shell Timeout: {config.shell_timeout_seconds}s")
+    print()
 
 
 def main() -> None:
@@ -79,12 +109,22 @@ def main() -> None:
     )
     agent = NovaAgent(config)
 
+    if args.command == "info":
+        show_info(config, verbose=args.verbose)
+        return
+
     if args.command == "ask":
         try:
             response = agent.answer(args.prompt)
         except RuntimeError as exc:
-            print(f"Nova error: {exc}")
-            return
+            print(f"❌ Nova error: {exc}\n", file=sys.stderr)
+            print(f"💡 Troubleshooting:", file=sys.stderr)
+            if "Ollama" in str(exc):
+                print(f"   - Ensure Ollama is running: ollama serve", file=sys.stderr)
+                print(f"   - Or run the installer: ./install.sh", file=sys.stderr)
+            elif "model" in str(exc).lower():
+                print(f"   - Pull the model: ollama pull {config.model}", file=sys.stderr)
+            sys.exit(1)
         print(response.answer)
         return
 
@@ -151,6 +191,14 @@ def main() -> None:
                 print("Grant revoked." if removed else "Grant not found.")
                 return
             elif args.action == "disable":
+                if not agent.credits.has_admin_password():
+                    password = _prompt_password("Set admin password: ")
+                    confirm = _prompt_password("Confirm admin password: ")
+                    if password != confirm:
+                        print("Nova error: passwords did not match.")
+                        return
+                    agent.credits.set_admin_password(password)
+                    print("Admin password set.")
                 _require_admin_password(agent, config)
                 info = agent.credits.set_enabled(False)
             else:
@@ -160,6 +208,20 @@ def main() -> None:
         except RuntimeError as exc:
             print(f"Nova error: {exc}")
         return
+
+    if args.command == "web":
+        try:
+            from .web_gui import run_web_gui
+            run_web_gui(config, host="127.0.0.1", port=args.port, debug=args.debug)
+        except ImportError:
+            print("❌ Flask is required for the web GUI.")
+            print("Install it with: pip install flask")
+            sys.exit(1)
+        except Exception as e:
+            print(f"❌ Error starting web server: {e}")
+            sys.exit(1)
+        return
+
 
 
 def run_chat(agent: NovaAgent, config: NovaConfig) -> None:

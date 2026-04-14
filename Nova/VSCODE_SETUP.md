@@ -1,52 +1,59 @@
-# VS Code Side Panel Setup Guide
+# VS Code Nova AI Chat Setup
 
-This guide walks you through setting up and using Nova's VS Code side panel extension.
-
-## Prerequisites
-
-- VS Code 1.80 or later
-- Node.js and npm (for extension development)
-- Python 3.11+ with Nova running locally
+Nova AI has a VS Code side panel extension that works just like GitHub Copilot Chat. Open it with **Cmd+Shift+N** (Mac) or **Ctrl+Shift+N** (Windows/Linux).
 
 ## Quick Start
 
-### 1. Enable the VS Code Extension
-
-Open the `Nova/vscode-nova` folder in VS Code:
+### 1. Open the Extension Folder
 
 ```bash
 code Nova/vscode-nova
 ```
 
-### 2. Install Dependencies (if needed)
+### 2. Install Dependencies (first time only)
 
 ```bash
 cd Nova/vscode-nova
 npm install
 ```
 
-### 3. Test the Extension
+### 3. Run in Debug Mode
 
-In VS Code within `vscode-nova`, press **F5** to start the extension in debug mode. This opens a new VS Code window with the extension enabled.
+Press **F5** in VS Code. This opens a new window with the extension loaded.
 
-### 4. Open Nova Side Panel
+### 4. Open Nova Chat
 
-In the main VS Code window (or the debug window):
+Use the keyboard shortcut:
+- **Cmd+Shift+N** (Mac)
+- **Ctrl+Shift+N** (Windows/Linux)
 
-1. Open the command palette: **Ctrl+Shift+P** (or **Cmd+Shift+P** on Mac)
-2. Type: `Nova: Open Side Panel`
-3. Press Enter
+Or open the command palette (**Cmd+Shift+P** / **Ctrl+Shift+P**) and search for "Nova: Open Chat".
 
-A new panel opens on the right side of your editor.
+### 5. Start Chatting!
 
-### 5. Use Nova from the Side Panel
+Type your question about the codebase in the chat box and press **Send** or **Ctrl+Enter**.
 
-- Type your question in the text area
-- Click **Ask Nova** to send it
-- Nova runs `python -m nova_ai.cli ask <prompt>` in your current workspace
-- The response appears in the panel
+## Features
 
-## Example Prompts
+- 💬 Chat interface just like Copilot Chat
+- 📁 Ask about repository structure
+- 🔍 Get code explanations and suggestions
+- 🐛 Find bugs and issues
+- ✨ Runs entirely locally with Ollama
+- 🎯 Context-aware answers using your repo files
+
+## Troubleshooting
+
+**"Ollama not running"**
+- Run `ollama serve` in a terminal to start Ollama
+
+**"Command not found"**
+- Make sure you ran `npm install` in the `vscode-nova` folder
+- Restart VS Code after installing
+
+**"Extension not loading"**
+- Make sure you pressed F5 to start the debug mode
+- Check the Debug Console for errors
 
 **Python:**
 ```
