@@ -1,0 +1,14 @@
+{
+  "credits": 104,
+  "enabled": true,
+  "admin_password": "2fc8a6803b672e89c80a42de6ed81720:18eda4b3d00b9d0446c73401fe96b9a58c00f4d860ffaaeaca514f09a26e4ce5",
+  "grants": [
+    {
+      "id": "3655bee8",
+      "name": "demo-grant",
+      "password": "a4126ac2433f2147fe79a94472a0cad5:746d1bfec54432345a29e17c2679e638552f16778d4b82ff2f6336d2a4ce44d6",
+      "remaining_prompts": 3,
+      "expires_at": "2026-04-13T04:11:32.374590+00:00"
+    }
+  ]
+}

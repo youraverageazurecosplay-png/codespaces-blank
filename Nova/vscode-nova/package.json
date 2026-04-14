@@ -1,0 +1,20 @@
+{
+  "name": "nova-side-panel",
+  "displayName": "Nova Side Panel",
+  "description": "Open Nova AI in a VS Code side panel for repository-aware coding assistance.",
+  "version": "0.1.0",
+  "publisher": "nova",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "activationEvents": ["onCommand:nova.openSidePanel"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nova.openSidePanel",
+        "title": "Nova: Open Side Panel"
+      }
+    ]
+  }
+}

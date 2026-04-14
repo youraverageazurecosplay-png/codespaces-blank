@@ -1,0 +1,330 @@
+Metadata-Version: 2.4
+Name: nova-ai
+Version: 0.1.0
+Summary: Local-first coding assistant scaffold.
+Author: OpenAI Codex
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
+# Nova AI
+
+Nova is a local-first coding assistant scaffold designed to run against your own repositories.
+It is built to start offline with an Ollama-served model and leave room for later upgrades like:
+
+- a VS Code extension side panel ✓
+- multi-agent coordination
+- optional cloud model routing
+- safe patch review and apply flows
+
+Yes, Nova follows ordinary text prompts. `ask` sends a one-shot text prompt, and `chat` lets you keep a text conversation going.
+
+New users should start with:
+
+- [TUTORIAL.md](TUTORIAL.md) — First steps and basic usage
+- [VSCODE_SETUP.md](VSCODE_SETUP.md) — Open Nova in a VS Code side panel
+- [install.sh](install.sh) — One-click installer script for new repositories
+
+## What This MVP Does
+
+- chat with a local coding model through Ollama
+- inspect the current repository with built-in tools
+- read files, list files, and search text
+- generate patch proposals instead of silently changing code
+- optionally run shell commands when you allow it
+
+This first version is a backend-first CLI so we can get the coding workflow right before wrapping it in an editor UI.
+
+## Teaching Nova
+
+For a local assistant like Nova, the best early version of "teaching" is not full model training.
+It is a combination of:
+
+- better system prompts ✓ (enhanced base prompt with local knowledge notes)
+- domain-specific profiles ✓ (general, python, bash, minecraft)
+- profile-boosted prompts ✓ (advanced guidance for each domain)
+- repo-aware context gathering ✓ (file inventory, search, local patterns)
+- example-heavy workflows (add examples to knowledge/ markdown files)
+
+This project now includes switchable profiles:
+
+- `general` — baseline coding assistant
+- `python` — Python 3.11+, architecture, async/concurrency, packaging, type hints
+- `bash` — shell scripts, automation, portability, safety, quoting
+- `minecraft` — Fabric, Forge, Paper, Spigot, datapacks; registries, mixins, threading
+
+Each profile is backed by:
+
+1. A **base system prompt** guiding the model's reasoning
+2. A **knowledge file** with tips and patterns for that domain  
+3. An **advanced knowledge file** with deeper techniques and edge cases
+
+These files change how Nova reasons about your request, what risks it watches for, and what style of code it tends to produce.
+
+## Project Layout
+
+```text
+Nova/
+  README.md
+  run
+  pyproject.toml
+  knowledge/
+    common.md
+    python.md
+    python_advanced.md
+    bash.md
+    bash_advanced.md
+    minecraft.md
+    minecraft_advanced.md
+  nova_ai/
+    __init__.py
+    agent.py
+    cli.py
+    config.py
+    credits.py
+    knowledge.py
+    model_client.py
+    profiles.py
+    tools.py
+  vscode-nova/
+    package.json
+    extension.js
+    README.md
+```
+
+At the repo root, Nova also uses:
+
+```text
+NovaProjects/
+  your-projects-created-by-nova
+```
+
+## Requirements
+
+- Python 3.11+
+- Ollama installed locally
+- A local model pulled in Ollama, for example:
+
+```bash
+ollama pull qwen2.5-coder:7b
+```
+
+## Quick Start
+
+From the repo root:
+
+```bash
+ollama serve
+```
+
+In a second terminal:
+
+```bash
+cd Nova
+python -m nova_ai.cli ask "Explain the structure of this repo"
+```
+
+Or use the launchers:
+
+```bash
+./nova ask "Explain the structure of this repo"
+./nova --profile python chat
+./Nova/run --profile minecraft ask "Explain this mod"
+```
+
+Nova responds to plain text prompts like:
+
+```bash
+./nova --profile python ask "Help me build an async file watcher"
+./nova --profile bash ask "Write a deployment script with rollback checks"
+./nova --profile minecraft ask "How should I structure a Fabric networking layer?"
+```
+
+To create a starter project inside Nova's own workspace:
+
+```bash
+./nova create-project "Potion Helper"
+./nova create-project "Server Backup" --template bash-script
+./nova create-project "Crystal Tools" --template minecraft-fabric
+```
+
+## Credits
+
+Nova now has a simple local credits system.
+Each prompt costs `1` credit by default.
+State is stored under [Nova/.nova](/workspaces/codespaces-blank/Nova/.nova).
+
+Examples:
+
+```bash
+./nova credits status
+./nova credits add 25
+./nova credits disable
+./nova credits enable
+./nova credits reset
+```
+
+To set an admin bypass password:
+
+```bash
+./nova credits set-admin-password
+```
+
+To use bypass access:
+
+```bash
+./nova --access-password "your-password" --profile python ask "Help me refactor this module"
+```
+
+You can also create limited access grants for someone else:
+
+```bash
+./nova credits grant-create --name "friend-pass" --prompts 20
+./nova credits grant-create --name "trial-pass" --prompts 10 --hours 24
+./nova credits grant-list
+./nova credits grant-revoke --grant-id abc123ef
+```
+
+You can store a password in the environment with:
+
+```bash
+export NOVA_ACCESS_PASSWORD="your-password"
+```
+
+To point Nova at another repository:
+
+```bash
+python -m nova_ai.cli ask "Where is auth implemented?" --repo /path/to/project
+```
+
+To override the model:
+
+```bash
+python -m nova_ai.cli ask "Suggest a refactor for this file" --model qwen2.5-coder:7b
+```
+
+To use a focused profile:
+
+```bash
+python -m nova_ai.cli --profile python ask "Help me write a clean CLI tool"
+python -m nova_ai.cli --profile bash ask "Write a safe backup script"
+python -m nova_ai.cli --profile minecraft ask "Explain this Fabric mod structure"
+```
+
+To use a custom knowledge folder:
+
+```bash
+./nova --knowledge-dir /path/to/notes --profile python ask "Follow my local coding rules"
+```
+
+## Interactive Mode
+
+```bash
+python -m nova_ai.cli chat
+```
+
+Helpful commands inside chat:
+
+- `/help` show commands
+- `/files` list tracked files in the repo
+- `/projects` list projects in `NovaProjects`
+- `/knowledge` show the active knowledge directory
+- `/credits` show the current credit status
+- `/read path/to/file.py` print a file
+- `/search some_text` search the repo
+- `/run pytest -q` run a command with confirmation
+- `/repo /path/to/repo` switch repository
+- `/model llama3.1:8b` switch model
+- `/profile minecraft` switch Nova's domain behavior
+- `/quit` exit chat
+
+## Design Notes
+
+Nova is intentionally tool-driven.
+The model is responsible for reasoning and drafting.
+The local tool layer is responsible for:
+
+- finding context
+- reading code safely
+- searching the workspace
+- collecting command output
+- storing patch proposals
+
+The current version does not auto-edit files. It generates patch proposals you can review first.
+
+## Knowledge Files
+
+Nova now reads markdown knowledge files before answering:
+
+- [knowledge/common.md](/workspaces/codespaces-blank/Nova/knowledge/common.md) — core coding practices
+- [knowledge/python.md](/workspaces/codespaces-blank/Nova/knowledge/python.md) — Python fundamentals
+- [knowledge/python_advanced.md](/workspaces/codespaces-blank/Nova/knowledge/python_advanced.md) — async, concurrency, packaging, architecture
+- [knowledge/bash.md](/workspaces/codespaces-blank/Nova/knowledge/bash.md) — Bash safety and portability
+- [knowledge/bash_advanced.md](/workspaces/codespaces-blank/Nova/knowledge/bash_advanced.md) — advanced script structure, system automation, debugging
+- [knowledge/minecraft.md](/workspaces/codespaces-blank/Nova/knowledge/minecraft.md) — mod/plugin platform detection
+- [knowledge/minecraft_advanced.md](/workspaces/codespaces-blank/Nova/knowledge/minecraft_advanced.md) — Fabric/Forge threading, mixins, rendering, registries
+
+This is the easiest way to teach Nova your preferences without retraining a model.
+You can write things like:
+
+- preferred commands
+- project structure notes
+- coding standards
+- common mistakes to watch for
+- Minecraft platform/version notes
+
+Nova also now has a dedicated project workspace at [NovaProjects](/workspaces/codespaces-blank/NovaProjects), so new starter projects can live there instead of being mixed into other repos.
+
+## VS Code Side Panel
+
+Nova can now run as a VS Code extension side panel.
+
+To set up:
+
+1. Open the `Nova/vscode-nova` folder in VS Code.
+2. Run `Developer: Reload Window` (or press F5 to start debugging the extension).
+3. Open the command palette and select `Nova: Open Side Panel`.
+4. Type your prompt and click `Ask Nova`.
+
+See [vscode-nova/README.md](/workspaces/codespaces-blank/Nova/vscode-nova/README.md) for more details.
+
+## How To Teach It Better Over Time
+
+For Python:
+
+- keep a few strong local example repos
+- ask for traceback analysis, refactors, tests, and docstrings
+- prefer prompts that mention files, errors, and expected behavior
+- add Python architecture, concurrency, and optimization examples to [knowledge/python_advanced.md](/workspaces/codespaces-blank/Nova/knowledge/python_advanced.md)
+
+For Bash:
+
+- keep shell scripts in one folder so Nova can inspect patterns
+- ask it to explain quoting and failure modes
+- test scripts with small commands first
+- add script structure, automation, and debugging patterns to [knowledge/bash_advanced.md](/workspaces/codespaces-blank/Nova/knowledge/bash_advanced.md)
+
+For Minecraft coding:
+
+- point Nova at the actual mod/plugin repo
+- mention whether you are building Fabric, Forge, Paper, Spigot, or datapacks
+- include Minecraft version in your prompt when it matters
+- keep build files and mod metadata files present so Nova can infer the stack
+- add platform-specific patterns, registry techniques, and threading models to [knowledge/minecraft_advanced.md](/workspaces/codespaces-blank/Nova/knowledge/minecraft_advanced.md)
+
+If you eventually want deeper specialization, the next upgrade is to add a local knowledge folder with:
+
+- style guides
+- example snippets
+- common commands
+- project conventions
+- troubleshooting notes
+
+## Next Steps
+
+Good follow-up upgrades:
+
+1. Add embeddings-backed semantic code search
+2. Add patch apply and rollback support
+3. Add a task planner and reviewer agent
+4. Add a local HTTP service for a VS Code extension
+5. Add local/cloud routing policies

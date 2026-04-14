@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "clientutils",
+  "version": "${version}",
+  "name": "Client Utils",
+  "description": "Client-side utility mod with tweak and automation tools.",
+  "authors": [
+    "You"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/clientutils/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.example.clientutils.ClientUtilsMod"
+    ]
+  },
+  "mixins": [
+    "clientutils.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "fabric": "*",
+    "minecraft": "~1.21.11"
+  }
+}

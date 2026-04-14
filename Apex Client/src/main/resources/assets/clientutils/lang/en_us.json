@@ -1,0 +1,9 @@
+{
+  "category.clientutils": "Client Utils",
+  "key.clientutils.open_gui": "Open Client Utils Menu",
+  "key.clientutils.triggerbot": "Toggle Triggerbot",
+  "screen.clientutils.title": "Client Utils",
+  "text.clientutils.enabled": "Enabled",
+  "text.clientutils.disabled": "Disabled",
+  "text.clientutils.book_imported": "Book pages pasted from clipboard"
+}

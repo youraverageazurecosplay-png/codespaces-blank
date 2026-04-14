@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.example.clientutils.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "BookEditScreenMixin",
+    "TextFieldWidgetMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
