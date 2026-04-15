@@ -1,7 +1,26 @@
 const vscode = require("vscode");
 const child_process = require("child_process");
 
+class NovaTreeDataProvider {
+  getTreeItem(element) {
+    return element;
+  }
+
+  getChildren(element) {
+    if (!element) {
+      const item = new vscode.TreeItem("🚀 Click to open Nova Side Panel");
+      item.command = { command: "nova.openSidePanel", title: "Open Nova" };
+      item.collapsibleState = vscode.TreeItemCollapsibleState.None;
+      return [item];
+    }
+    return [];
+  }
+}
+
 function activate(context) {
+  const provider = new NovaTreeDataProvider();
+  vscode.window.registerTreeDataProvider("novaExplorer", provider);
+
   const command = vscode.commands.registerCommand("nova.openSidePanel", async () => {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {

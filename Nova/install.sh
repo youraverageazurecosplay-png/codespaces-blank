@@ -42,14 +42,18 @@ fi
 echo "📦 Installing Nova AI..."
 pip install -e .
 
-# Pull the default model
+# Pull the default model (7b is more capable)
 echo "🤖 Pulling default model (qwen2.5-coder:7b)..."
-ollama pull qwen2.5-coder:7b
+if ! ollama pull qwen2.5-coder:7b; then
+    echo "⚠️  Failed to pull model, but Nova can still run with other installed models"
+fi
 
 echo "✅ Nova AI setup complete!"
 echo ""
 echo "To use Nova:"
 echo "  nova --profile python ask \"Your question here\""
 echo "  nova chat"
+echo "  nova web                    # Web GUI at http://localhost:5000"
+echo "  nova open                   # VS Code extension"
 echo ""
 echo "For VS Code GUI, see VSCODE_SETUP.md"

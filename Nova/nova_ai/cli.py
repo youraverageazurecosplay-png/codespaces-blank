@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import getpass
+import subprocess
+import sys
 from pathlib import Path
 
 from .agent import NovaAgent
@@ -60,6 +62,13 @@ def build_parser() -> argparse.ArgumentParser:
     credits.add_argument("--prompts", type=int, default=None, help="Grant prompt limit")
     credits.add_argument("--hours", type=int, default=None, help="Grant duration in hours")
     credits.add_argument("--grant-id", default=None, help="Grant id to revoke")
+    
+    web = subparsers.add_parser("web", help="Open Nova in a web browser GUI")
+    web.add_argument("--port", type=int, default=5000, help="Port to run web server on (default: 5000)")
+    web.add_argument("--debug", action="store_true", help="Run in debug mode")
+    
+    subparsers.add_parser("open", help="Open Nova in VS Code with side panel (requires VS Code installed)")
+    
     return parser
 
 
@@ -94,6 +103,19 @@ def main() -> None:
 
     if args.command == "create-project":
         print(agent.tools.create_project(args.name, template=args.template).content)
+        return
+
+    if args.command == "web":
+        try:
+            from .web_gui import run_web_gui
+            run_web_gui(config, host="127.0.0.1", port=args.port, debug=args.debug)
+        except ImportError:
+            print("❌ Flask is required for the web GUI.")
+            print("Install it with: pip install flask")
+            sys.exit(1)
+        except Exception as e:
+            print(f"❌ Error starting web server: {e}")
+            sys.exit(1)
         return
 
     if args.command == "credits":
@@ -159,6 +181,19 @@ def main() -> None:
             print(_format_credits(info))
         except RuntimeError as exc:
             print(f"Nova error: {exc}")
+        return
+
+    if args.command == "open":
+        try:
+            # Open VS Code with the workspace
+            subprocess.run(["code", str(config.repo_root)], check=False)
+            print("✓ Opening VS Code with Nova extension...")
+            print("  Look for the wand icon (✨) in the left activity bar")
+            print("  Or press Ctrl+Shift+P and search 'Nova'")
+        except FileNotFoundError:
+            print("❌ VS Code is not installed or 'code' is not in PATH")
+            print("  Install VS Code or add it to your PATH")
+            sys.exit(1)
         return
 
 

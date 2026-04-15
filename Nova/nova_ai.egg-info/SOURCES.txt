@@ -9,6 +9,7 @@ pyproject.toml
 ./nova_ai/model_client.py
 ./nova_ai/profiles.py
 ./nova_ai/tools.py
+./nova_ai/web_gui.py
 nova_ai/__init__.py
 nova_ai/agent.py
 nova_ai/cli.py
@@ -18,6 +19,7 @@ nova_ai/knowledge.py
 nova_ai/model_client.py
 nova_ai/profiles.py
 nova_ai/tools.py
+nova_ai/web_gui.py
 nova_ai.egg-info/PKG-INFO
 nova_ai.egg-info/SOURCES.txt
 nova_ai.egg-info/dependency_links.txt

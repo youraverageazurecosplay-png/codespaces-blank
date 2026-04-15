@@ -7,13 +7,54 @@
   "engines": {
     "vscode": "^1.80.0"
   },
-  "activationEvents": ["onCommand:nova.openSidePanel"],
+  "activationEvents": ["onStartupFinished"],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
         "command": "nova.openSidePanel",
-        "title": "Nova: Open Side Panel"
+        "title": "Nova: Open Side Panel",
+        "icon": "$(wand)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nova-explorer",
+          "title": "Nova",
+          "icon": "$(wand)"
+        }
+      ]
+    },
+    "views": {
+      "nova-explorer": [
+        {
+          "id": "novaExplorer",
+          "name": "Nova AI Assistant"
+        }
+      ]
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "nova.openSidePanel",
+          "group": "navigation",
+          "when": "resourceScheme == file"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "nova.openSidePanel",
+          "group": "navigation",
+          "view": "novaExplorer"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "nova.openSidePanel",
+        "key": "ctrl+alt+n",
+        "mac": "cmd+alt+n"
       }
     ]
   }
